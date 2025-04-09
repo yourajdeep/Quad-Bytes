@@ -15,6 +15,7 @@ import org.json.*;
 
 public class main {
     private String currentUser = "";
+    private JLabel stats;
     private HashMap<String, UserProfile> users = new HashMap<>();
     //UI components
     JLabel xpLabel;
@@ -154,6 +155,31 @@ public class main {
             homeCard.add(sectionBtn);
         }
     
+        // XP / Level / Coins Display Panel
+        UserProfile user = users.get(currentUser);
+    
+        JLabel xpLabel = new JLabel("⭐ XP: " + user.xp);
+        JLabel levelLabel = new JLabel("🎯 Level: " + user.level);
+    
+        // Load coin icon
+        ImageIcon coinIcon = new ImageIcon("res/coins.png"); // Your icon path here
+        Image coinImg = coinIcon.getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH);
+        coinIcon = new ImageIcon(coinImg);
+    
+        JLabel coinLabel = new JLabel(user.coins + " ");
+        coinLabel.setIcon(coinIcon);
+        coinLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+    
+        // Store the labels globally if needed
+        this.xpLabel = xpLabel;
+        this.levelLabel = levelLabel;
+    
+        JPanel statsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
+        statsPanel.setBackground(new Color(240, 248, 255));
+        statsPanel.add(xpLabel);
+        statsPanel.add(levelLabel);
+        statsPanel.add(coinLabel);
+    
         // Add the individual section panels
         contentPanel.add(workoutPanel(contentPanel, cardLayout), "Workout");
         contentPanel.add(nutritionPanel(contentPanel, cardLayout), "Nutrition");
@@ -173,6 +199,7 @@ public class main {
         homeWrapper.setBackground(new Color(240, 248, 255));
         homeWrapper.add(welcomeLabel, BorderLayout.NORTH);
         homeWrapper.add(homeCard, BorderLayout.CENTER);
+        homeWrapper.add(statsPanel, BorderLayout.SOUTH); // Add XP/Level/Coins
     
         contentPanel.add(homeWrapper, "Home");
         cardLayout.show(contentPanel, "Home");
@@ -202,7 +229,7 @@ public class main {
         scrollPane.setBorder(BorderFactory.createTitledBorder("💬 Chat with Trainer"));
     
         JTextField inputField = new JTextField();
-        inputField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        inputField.setFont(new Font("JetBrains Mono", Font.PLAIN, 18));
         inputField.setPreferredSize(new Dimension(200, 30));
     
         JButton sendBtn = new RoundedButton("📩 Send", 20);
@@ -240,8 +267,8 @@ public class main {
     List<Map<String, String>> chatHistory = new ArrayList<>();
 
 private void askChatbot(String userMessage, JTextArea chatArea) {
-    chatArea.append("🧠 You: " + userMessage + "\n");
-    chatArea.append("🤖 Asking trainer for a tip...\n");
+    chatArea.append("● You: " + userMessage + "\n");
+    chatArea.append("■ Asking trainer for a tip...\n");
 
     // Add user message to chat history
     Map<String, String> userMap = new HashMap<>();
@@ -295,9 +322,10 @@ private void askChatbot(String userMessage, JTextArea chatArea) {
                 botMap.put("message", botReply);
                 chatHistory.add(botMap);
 
-                SwingUtilities.invokeLater(() -> 
-                    chatArea.append("💪 Trainer: " + botReply.trim() + "\n\n")
-                );
+                SwingUtilities.invokeLater(() -> {
+                    chatArea.append("💪 Trainer: " + botReply.trim() + "\n\n");
+                    updateXP(10);
+                     });
 
             } catch (Exception e) {
                 SwingUtilities.invokeLater(() -> 
@@ -309,8 +337,23 @@ private void askChatbot(String userMessage, JTextArea chatArea) {
     };
     worker.execute();
 }
-    
-     
+private void updateXP(int amount) {
+    UserProfile user = users.get(currentUser);
+    user.xp += amount;
+
+    if (user.xp >= 100) {
+        user.xp -= 100;
+        user.level++;
+        user.coins +=25;
+        JOptionPane.showMessageDialog(frame, "🎉 Level Up! You're now Level " + user.level +
+                                              "\n🪙 You've earned 25 coins! Total: " + user.coins);
+    }
+
+    System.out.println("XP: " + user.xp + ", Level: " + user.level + ", Coins: " + user.coins);
+    if (stats != null) {
+        stats.setText("⭐ XP: " + user.xp + "    🎯 Level: " + user.level + "    🪙 Coins: " + user.coins);
+    }
+}
     private void fetchNutritionInfo(String query, JTextArea resultArea) {
     SwingWorker<Void, Void> worker = new SwingWorker<>() {
         protected Void doInBackground() {
@@ -421,9 +464,67 @@ private JPanel nutritionPanel(JPanel contentPanel, CardLayout cardLayout) {
 
 
 
-    private void openStore(){
+private void openStore() {
+    UserProfile user = users.get(currentUser);
 
-    }
+    JDialog dialog = new JDialog(frame, "🏪 Gym Store", true);
+    dialog.setSize(400, 300);
+    dialog.setLocationRelativeTo(frame);
+
+    JPanel storePanel = new JPanel(new GridLayout(3, 1, 10, 10));
+    storePanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+    storePanel.setBackground(new Color(255, 250, 240));
+
+    // Store Items
+    storePanel.add(createStoreItem("Mat", 50, "res/gym mat.png", user, dialog));
+    storePanel.add(createStoreItem("Dumbbells", 150, "res/dumble.png", user, dialog));
+    storePanel.add(createStoreItem("Red Iron Bottle", 200, "res/redbottle.png", user, dialog));
+
+    dialog.add(storePanel);
+    dialog.setVisible(true);
+}
+private JPanel createStoreItem(String name, int price, String iconPath, UserProfile user, JDialog dialog) {
+    JPanel itemPanel = new JPanel(new BorderLayout());
+    itemPanel.setBackground(Color.WHITE);
+    itemPanel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+
+    // Image
+    ImageIcon icon = new ImageIcon(iconPath);
+    Image scaled = icon.getImage().getScaledInstance(60, 60, Image.SCALE_SMOOTH);
+    JLabel iconLabel = new JLabel(new ImageIcon(scaled));
+    iconLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+    // Title & Price
+    JLabel nameLabel = new JLabel(name + " - " + price + " coins");
+    nameLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+
+    // Buy button
+    JButton buyBtn = new RoundedButton("Buy", 20);
+    buyBtn.setBackground(new Color(100, 149, 237));
+    buyBtn.setForeground(Color.WHITE);
+    buyBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+    buyBtn.addActionListener(e -> {
+        if (user.coins >= price) {
+            user.coins -= price;
+            JOptionPane.showMessageDialog(dialog, "✅ You purchased: " + name + "!");
+            dialog.dispose(); // You can remove this line if you want to allow multiple purchases
+            showMainApp(); // Refresh the main screen to update coins
+        } else {
+            JOptionPane.showMessageDialog(dialog, "❌ Not enough coins!", "Purchase Failed", JOptionPane.ERROR_MESSAGE);
+        }
+    });
+
+    JPanel infoPanel = new JPanel(new BorderLayout());
+    infoPanel.setBackground(Color.WHITE);
+    infoPanel.add(nameLabel, BorderLayout.NORTH);
+    infoPanel.add(buyBtn, BorderLayout.SOUTH);
+
+    itemPanel.add(iconLabel, BorderLayout.WEST);
+    itemPanel.add(infoPanel, BorderLayout.CENTER);
+
+    return itemPanel;
+}
 
     private JPanel sectionPanel(String message, JPanel parentPanel, CardLayout layout) {
         JPanel panel = new JPanel(new BorderLayout());
