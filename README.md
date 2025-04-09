@@ -31,8 +31,8 @@ FIT-Quest is a fitness and nutrition companion where users can:
 
 | Section                     | Done by              | Details                                                                                  |
 |------------------------------|----------------------|------------------------------------------------------------------------------------------|
-| 🖥️ Java Application (FIT-Quest App)  | Ritankar Bose & Ayush Chowdhury           | Developed the complete Java Swing UI app, API integration, logic for gamified experience |
-| 🤖 AI Chatbots               | Ritankar Bose            | Integrated Cohere API for personalized workout advice and chatbot history management     |
+| 🖥️ Java Application (FIT-Quest App)  | Ritankar Bose & Ayush Chowdhury         | Developed the complete Java Swing UI app, API integration, logic for gamified experience |
+| 🤖 AI Chatbots               | Ritankar Bose & Ayush Chowdhury            | Integrated Cohere API for personalized workout advice and chatbot history management     |
 | 🌐 Website, UI/UX-Design                   | Rajdeep Das           | Built the frontend website to promote FIT-Quest (Modern, Minimal)                  |
 | 🎨 Custom Graphic Design                 | Rani Bhattacharjee            | Designed the articons (Icons, in-application articons)                           |
 
