@@ -123,6 +123,71 @@ Congratulations! 🎉 You're ready to explore FIT-Quest!
 
 - You can simply download the sotware exe file from our website.
 
+---
+
+## 🌟 APIs Used
+
+FIT-Quest uses the following third-party APIs to enhance functionality:
+
+### 🧠 Cohere AI API
+- Used to power the **AI workout chatbot**.
+- Provides smart responses to user queries about fitness routines, exercises, and tips.
+- API Endpoint: `https://api.cohere.ai/v1/chat`
+
+### 🍎 Nutritionix API
+- Used to fetch **real-time nutritional information**.
+- Accepts natural language input like "2 eggs and toast" and returns calories, protein, fat, etc.
+- API Endpoint: `https://trackapi.nutritionix.com/v2/natural/nutrients`
+
+> 🔐 **Security Note**:  
+> API keys are currently embedded for hackathon/demo purposes.  
+> It's recommended to move them to environment variables or a secure config file in production.
+
+---
+
+## 📢 Future Improvements
+
+Here are some ideas to enhance FIT-Quest in future versions:
+
+- 📊 **Progress Tracking Dashboard**  
+  Add detailed stats like calories burned, workout duration, and daily streaks.
+
+- 📈 **Leaderboard System**  
+  Introduce a leaderboard where users can compare XP, coins, and levels with friends.
+
+- 🔒 **Secure Credential Storage**  
+  Encrypt user passwords and move API keys to a secure environment.
+
+- 📱 **Mobile Application**  
+  Develop a mobile app version for Android and iOS for on-the-go access.
+
+- 🎮 **Mini Fitness Games**  
+  Add interactive mini-games that reward users with bonus XP and coins for completing fitness challenges.
+
+- 🧠 **Smarter AI Workouts**  
+  Train custom AI models to generate personalized fitness plans based on user preferences.
+
+- 🎨 **More Store Items and Avatars**  
+  Expand the in-game store with customizable avatars, gym equipment, and power-ups.
+
+#
+_Stay tuned for more exciting updates! 🚀_
+
+---
+
+# 🏁 Thank You for Exploring FIT-Quest!
+
+_“Making fitness fun, one quest at a time!”_
+
+---
+
+We hope you enjoyed exploring our project.  
+Feel free to contribute, suggest new features, or reach out if you have ideas to make FIT-Quest even better! 🚀
+
+Stay fit, stay awesome! ✨
+
+
+
 
  
 
