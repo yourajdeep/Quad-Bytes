@@ -143,7 +143,7 @@ public class main {
         }
     
         // Add the individual section panels
-        contentPanel.add(sectionPanel("💪 Your Workout Plan will appear here!", contentPanel, cardLayout), "Workout");
+        contentPanel.add(createWorkoutPanel(contentPanel,cardLayout),"Workout");
         contentPanel.add(sectionPanel("🍎 Your Personalized Meals will appear here!", contentPanel, cardLayout), "Nutrition");
     
         // Store Panel with Open Store Button + Back
@@ -170,6 +170,79 @@ public class main {
         frame.repaint();
     }
     
+    private JPanel createWorkoutPanel(JPanel contentPanel, CardLayout cardLayout) {
+        JPanel workoutPanel = new JPanel(new BorderLayout());
+        workoutPanel.setBackground(new Color(255, 255, 240));
+    
+        JPanel formPanel = new JPanel(new GridLayout(4, 1, 10, 10));
+        formPanel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
+        formPanel.setBackground(new Color(255, 255, 240));
+    
+        JTextField ageField = new JTextField();
+        ageField.setBorder(BorderFactory.createTitledBorder("Enter Age"));
+    
+        JTextField heightField = new JTextField();
+        heightField.setBorder(BorderFactory.createTitledBorder("Enter Height (cm)"));
+    
+        JTextField weightField = new JTextField();
+        weightField.setBorder(BorderFactory.createTitledBorder("Enter Weight (kg)"));
+    
+        JButton calcBtn = new RoundedButton("💡 Get Tips", 30);
+        calcBtn.setBackground(new Color(60, 179, 113));
+        calcBtn.setForeground(Color.WHITE);
+    
+        calcBtn.addActionListener(e -> {
+            try {
+                int age = Integer.parseInt(ageField.getText().trim());
+                double height = Double.parseDouble(heightField.getText().trim());
+                double weight = Double.parseDouble(weightField.getText().trim());
+                double bmi = weight / Math.pow(height / 100, 2);
+                int suggestedCalories = (int) (22 * Math.pow(height / 100, 2) * 30);
+    
+                String tips = "";
+    
+                if (age < 18) {
+                    tips = "You're young! Focus on bodyweight exercises like pushups, squats, and develop healthy eating habits.";
+                } else if (age <= 40) {
+                    if (bmi < 18.5) {
+                        tips = "You're underweight. Strength training + calorie-rich balanced meals can help.";
+                    } else if (bmi < 24.9) {
+                        tips = "Great! You're in a healthy range. Maintain with a mix of cardio and strength.";
+                    } else {
+                        tips = "Overweight. Focus on cardio, resistance training, and a calorie-deficit diet.";
+                    }
+                } else {
+                    tips = "Prioritize joint-friendly exercises like walking, yoga, or swimming.\nConsult a doctor before intense routines.";
+                }
+    
+                JOptionPane.showMessageDialog(frame,
+                    "✅ Age: " + age + "\n" +
+                    "📏 Height: " + height + " cm\n" +
+                    "⚖️ Weight: " + weight + " kg\n" +
+                    "🧮 BMI: " + String.format("%.1f", bmi) + "\n" +
+                    "🔥 Suggested Calories: " + suggestedCalories + " kcal/day\n\n" +
+                    tips,
+                    "Workout Recommendation", JOptionPane.INFORMATION_MESSAGE);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(frame, "Please enter valid numbers for all fields!", "Input Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+    
+        formPanel.add(ageField);
+        formPanel.add(heightField);
+        formPanel.add(weightField);
+        formPanel.add(calcBtn);
+    
+        JButton backBtn = new RoundedButton("⬅ Back", 25);
+        backBtn.setBackground(new Color(220, 20, 60));
+        backBtn.setForeground(Color.WHITE);
+        backBtn.addActionListener(e -> cardLayout.show(contentPanel, "Home"));
+    
+        workoutPanel.add(formPanel, BorderLayout.CENTER);
+        workoutPanel.add(backBtn, BorderLayout.SOUTH);
+    
+        return workoutPanel;
+    }
 
     private void openStore(){
 
