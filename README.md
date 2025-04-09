@@ -2,7 +2,7 @@
 
 **`PROBLEM STATEMENT : Nutrition and Performance Planner`**
 
-*`DESCRIPTION : Design an app that combines personalized workout routines with nutrition planning to optimize athletic performance based on individual health data`*
+*`DESCRIPTION : Design an app that combines personalized workout routines with nutrition planning to optimize athletic performance based on individual health data.`*
 # 🏆 FIT-Quest - Innovation in Nutrition
 
 Welcome to **FIT-Quest**, an innovative hackathon project that gamifies fitness and nutrition tracking!  
