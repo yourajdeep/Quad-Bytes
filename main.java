@@ -25,68 +25,77 @@ public class main {
         frame.setVisible(true);
 
     }
-    private void showLoginScreen(){
-        JPanel panel = new JPanel(new GridLayout(5, 1, 10, 10)); // Increased to 5 for password
+    private void showLoginScreen() {
+        JPanel panel = new JPanel(new GridLayout(6, 1, 10, 10));
         panel.setBorder(BorderFactory.createEmptyBorder(30, 40, 30, 40));
         panel.setBackground(new Color(240, 248, 255));
     
         JLabel title = new JLabel("Welcome to FIT-Quest!", JLabel.CENTER);
-        title.setFont(new Font("Jetbrains Mono", Font.BOLD, 20));
+        title.setFont(new Font("JetBrains Mono", Font.BOLD, 20));
+    
+        JLabel usernameLabel = new JLabel("👤 Username:");
+        usernameLabel.setFont(new Font("JetBrains Mono", Font.PLAIN, 14));
     
         JTextField nameField = new JTextField();
-        nameField.setFont(new Font("Jetbrains Mono", Font.PLAIN, 14)); // Increase font size
+        nameField.setFont(new Font("JetBrains Mono", Font.PLAIN, 14));
     
-        JPasswordField passwordField = new JPasswordField(); // 👈 Add password field
-        passwordField.setFont(new Font("Jetbrains Mono", Font.PLAIN, 14)); // Font size for better cursor
+        JLabel passwordLabel = new JLabel("🔒 Password:");
+        passwordLabel.setFont(new Font("JetBrains Mono", Font.PLAIN, 14));
     
-        JButton loginBtn = new RoundedButton("Login", 40);
-        loginBtn.setBackground(new Color(100,149,237));
+        JPasswordField passwordField = new JPasswordField();
+        passwordField.setFont(new Font("JetBrains Mono", Font.PLAIN, 14));
+    
+        RoundedButton loginBtn = new RoundedButton("Login", 40);
+        loginBtn.setBackground(new Color(100, 149, 237));
         loginBtn.setForeground(Color.WHITE);
         loginBtn.setFocusPainted(false);
-        loginBtn.setFont(new Font("Jetbrains Mono", Font.BOLD, 14));
+        loginBtn.setFont(new Font("JetBrains Mono", Font.BOLD, 14));
         loginBtn.setUI(new javax.swing.plaf.basic.BasicButtonUI());
         loginBtn.setPreferredSize(new Dimension(200, 40));
+        loginBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
     
         loginBtn.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                loginBtn.setBackground(new Color(65,105,225));
+                loginBtn.setBackground(new Color(65, 105, 225));
             }
     
             public void mouseExited(java.awt.event.MouseEvent evt) {
-                loginBtn.setBackground(new Color(100,149,237));
+                loginBtn.setBackground(new Color(100, 149, 237));
             }
         });
     
+        // Add components to panel
         panel.add(title);
+        panel.add(usernameLabel);
         panel.add(nameField);
-        panel.add(passwordField); // 👈 Add password field to UI
+        panel.add(passwordLabel);
+        panel.add(passwordField);
         panel.add(loginBtn);
     
+        // Login logic
         loginBtn.addActionListener(e -> {
             String name = nameField.getText().trim();
-            String password = new String(passwordField.getPassword());
+            String password = new String(passwordField.getPassword()).trim();
     
             if (!name.isEmpty() && !password.isEmpty()) {
-                UserProfile user = users.get(name);
-    
-                if (user == null) {
-                    // First-time login: set password as default
-                    currentUser = name;
-                    UserProfile newUser = new UserProfile();
-                    newUser.password = password;
-                    users.put(name, newUser);
-                    showMainApp();  
-                } else {
-                    // Existing user: validate password
-                    if (user.password.equals(password)) {
+                if (users.containsKey(name)) {
+                    if (users.get(name).password.equals(password)) {
                         currentUser = name;
                         showMainApp();
                     } else {
                         JOptionPane.showMessageDialog(frame, "❌ Incorrect password!", "Login Failed", JOptionPane.ERROR_MESSAGE);
                     }
+                } else {
+                    // First time user: register
+                    UserProfile newUser = new UserProfile();
+                    newUser.password = password;
+                    users.put(name, newUser);
+                    currentUser = name;
+                    JOptionPane.showMessageDialog(frame, "✅ Welcome, new user! Your profile has been created.");
+                    showMainApp();
                 }
             } else {
-                JOptionPane.showMessageDialog(frame, "⚠️ Please enter both username and password.", "Missing Fields", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(frame, "Please enter both username and password.");
             }
         });
     
@@ -94,8 +103,102 @@ public class main {
         frame.revalidate();
     }
     
-    private void showMainApp(){
+    private void showMainApp() {
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setBackground(new Color(240, 248, 255));
+    
+        JLabel welcomeLabel = new JLabel("Welcome back, " + currentUser + " 👋", JLabel.CENTER);
+        welcomeLabel.setFont(new Font("Segoe UI", Font.BOLD, 22));
+        welcomeLabel.setForeground(new Color(25, 25, 112));
+        welcomeLabel.setBorder(BorderFactory.createEmptyBorder(20, 10, 10, 10));
+    
+        JPanel homeCard = new JPanel();
+        homeCard.setLayout(new GridLayout(2, 2, 20, 20));
+        homeCard.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
+        homeCard.setBackground(new Color(250, 250, 255));
+    
+        String[] btnNames = {"🏋️ Workout", "🥗 Nutrition", "🏪 Store", "📊 Progress"};
+        Color[] colors = {
+            new Color(135, 206, 250),
+            new Color(152, 251, 152),
+            new Color(255, 182, 193),
+            new Color(255, 215, 0)
+        };
+        String[] cardNames = {"Workout", "Nutrition", "Store", "Progress"};
+    
+        CardLayout cardLayout = new CardLayout();
+        JPanel contentPanel = new JPanel(cardLayout);
+    
+        for (int i = 0; i < btnNames.length; i++) {
+            RoundedButton sectionBtn = new RoundedButton(btnNames[i], 30);
+            sectionBtn.setFont(new Font("JetBrains Mono", Font.BOLD, 14));
+            sectionBtn.setBackground(colors[i]);
+            sectionBtn.setForeground(Color.WHITE);
+            sectionBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    
+            final String section = cardNames[i];
+            sectionBtn.addActionListener(e -> cardLayout.show(contentPanel, section));
+    
+            homeCard.add(sectionBtn);
+        }
+    
+        // Add the individual section panels
+        contentPanel.add(sectionPanel("💪 Your Workout Plan will appear here!", contentPanel, cardLayout), "Workout");
+        contentPanel.add(sectionPanel("🍎 Your Personalized Meals will appear here!", contentPanel, cardLayout), "Nutrition");
+    
+        // Store Panel with Open Store Button + Back
+        JPanel storePanel = sectionPanel("", contentPanel, cardLayout);
+        JButton openStoreBtn = new RoundedButton("🛍️ Open Store", 30);
+        openStoreBtn.setFont(new Font("Segoe UI Emoji", Font.BOLD, 13));
+        openStoreBtn.addActionListener(e -> openStore());
+        storePanel.add(openStoreBtn, BorderLayout.CENTER);
+        contentPanel.add(storePanel, "Store");
+    
+        contentPanel.add(sectionPanel("📈 Progress Tracking coming soon!", contentPanel, cardLayout), "Progress");
+    
+        // Home Wrapper
+        JPanel homeWrapper = new JPanel(new BorderLayout());
+        homeWrapper.setBackground(new Color(240, 248, 255));
+        homeWrapper.add(welcomeLabel, BorderLayout.NORTH);
+        homeWrapper.add(homeCard, BorderLayout.CENTER);
+    
+        contentPanel.add(homeWrapper, "Home");
+        cardLayout.show(contentPanel, "Home");
+    
+        frame.setContentPane(contentPanel);
+        frame.revalidate();
+        frame.repaint();
+    }
+    
 
+    private void openStore(){
+
+    }
+
+    private JPanel sectionPanel(String message, JPanel parentPanel, CardLayout layout) {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(new Color(255, 255, 255));
+    
+        JLabel label = new JLabel(message, JLabel.CENTER);
+        label.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 16));
+        panel.add(label, BorderLayout.CENTER);
+    
+        // 🏠 Back Button
+        RoundedButton backBtn = new RoundedButton("⬅ Back to Home", 30);
+        backBtn.setFont(new Font("JetBrains Mono", Font.PLAIN, 12));
+        backBtn.setBackground(new Color(100, 149, 237));
+        backBtn.setForeground(Color.WHITE);
+        backBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        backBtn.addActionListener(e -> layout.show(parentPanel, "Home"));
+    
+        JPanel south = new JPanel();
+        south.setBackground(new Color(255, 255, 255));
+        south.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        south.add(backBtn);
+    
+        panel.add(south, BorderLayout.SOUTH);
+    
+        return panel;
     }
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new main());
@@ -140,4 +243,3 @@ public class main {
         }
     }
 }
- 
