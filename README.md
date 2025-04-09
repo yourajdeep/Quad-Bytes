@@ -121,7 +121,7 @@ Congratulations! 🎉 You're ready to explore FIT-Quest!
 #
 ### If you don't want to follow these steps:
 
-- You can simply download the sotware exe file from our website.
+- You can simply download the sotware `.exe` file from our website.
 
 ---
 
