@@ -116,7 +116,7 @@ header{
 .home-info p{
     color: white;
     padding-left: 0.8%;
-    max-width: 210px;
+    max-width: 160px;
 }
 
 .home-info button{
@@ -193,6 +193,7 @@ header{
     font-size: 20px;
     margin-top: 50px;
     margin-bottom: 0;
+    text-align: center;
 }
 
 .details-section h5{
@@ -318,7 +319,7 @@ header{
 }
 
 .footer p{
-    margin: 0 450px;
+    margin: 0 430px;
 }
 
 .autoBlur{
