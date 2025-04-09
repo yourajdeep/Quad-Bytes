@@ -1,6 +1,18 @@
 import java.awt.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.List;
+
 import javax.swing.*;
+import org.json.*;
+
 public class main {
     private String currentUser = "";
     private HashMap<String, UserProfile> users = new HashMap<>();
@@ -143,8 +155,8 @@ public class main {
         }
     
         // Add the individual section panels
-        contentPanel.add(createWorkoutPanel(contentPanel,cardLayout),"Workout");
-        contentPanel.add(sectionPanel("🍎 Your Personalized Meals will appear here!", contentPanel, cardLayout), "Nutrition");
+        contentPanel.add(workoutPanel(contentPanel, cardLayout), "Workout");
+        contentPanel.add(nutritionPanel(contentPanel, cardLayout), "Nutrition");
     
         // Store Panel with Open Store Button + Back
         JPanel storePanel = sectionPanel("", contentPanel, cardLayout);
@@ -170,79 +182,244 @@ public class main {
         frame.repaint();
     }
     
-    private JPanel createWorkoutPanel(JPanel contentPanel, CardLayout cardLayout) {
-        JPanel workoutPanel = new JPanel(new BorderLayout());
-        workoutPanel.setBackground(new Color(255, 255, 240));
+    private JPanel workoutPanel(JPanel parent, CardLayout layout) {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(new Color(255, 255, 240));
     
-        JPanel formPanel = new JPanel(new GridLayout(4, 1, 10, 10));
-        formPanel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
-        formPanel.setBackground(new Color(255, 255, 240));
+        JLabel title = new JLabel("🏋️ Your Personalized Workout Trainer", JLabel.CENTER);
+        title.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        title.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
     
-        JTextField ageField = new JTextField();
-        ageField.setBorder(BorderFactory.createTitledBorder("Enter Age"));
+        JTextArea tipsArea = new JTextArea();
+        tipsArea.setLineWrap(true);
+        tipsArea.setWrapStyleWord(true);
+        tipsArea.setEditable(false);
+        tipsArea.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        tipsArea.setMargin(new Insets(10, 10, 10, 10));
     
-        JTextField heightField = new JTextField();
-        heightField.setBorder(BorderFactory.createTitledBorder("Enter Height (cm)"));
+        JScrollPane scrollPane = new JScrollPane(tipsArea);
+        scrollPane.setPreferredSize(new Dimension(400, 300));
+        scrollPane.setBorder(BorderFactory.createTitledBorder("💬 Chat with Trainer"));
     
-        JTextField weightField = new JTextField();
-        weightField.setBorder(BorderFactory.createTitledBorder("Enter Weight (kg)"));
+        JTextField inputField = new JTextField();
+        inputField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        inputField.setPreferredSize(new Dimension(200, 30));
     
-        JButton calcBtn = new RoundedButton("💡 Get Tips", 30);
-        calcBtn.setBackground(new Color(60, 179, 113));
-        calcBtn.setForeground(Color.WHITE);
-    
-        calcBtn.addActionListener(e -> {
-            try {
-                int age = Integer.parseInt(ageField.getText().trim());
-                double height = Double.parseDouble(heightField.getText().trim());
-                double weight = Double.parseDouble(weightField.getText().trim());
-                double bmi = weight / Math.pow(height / 100, 2);
-                int suggestedCalories = (int) (22 * Math.pow(height / 100, 2) * 30);
-    
-                String tips = "";
-    
-                if (age < 18) {
-                    tips = "You're young! Focus on bodyweight exercises like pushups, squats, and develop healthy eating habits.";
-                } else if (age <= 40) {
-                    if (bmi < 18.5) {
-                        tips = "You're underweight. Strength training + calorie-rich balanced meals can help.";
-                    } else if (bmi < 24.9) {
-                        tips = "Great! You're in a healthy range. Maintain with a mix of cardio and strength.";
-                    } else {
-                        tips = "Overweight. Focus on cardio, resistance training, and a calorie-deficit diet.";
-                    }
-                } else {
-                    tips = "Prioritize joint-friendly exercises like walking, yoga, or swimming.\nConsult a doctor before intense routines.";
-                }
-    
-                JOptionPane.showMessageDialog(frame,
-                    "✅ Age: " + age + "\n" +
-                    "📏 Height: " + height + " cm\n" +
-                    "⚖️ Weight: " + weight + " kg\n" +
-                    "🧮 BMI: " + String.format("%.1f", bmi) + "\n" +
-                    "🔥 Suggested Calories: " + suggestedCalories + " kcal/day\n\n" +
-                    tips,
-                    "Workout Recommendation", JOptionPane.INFORMATION_MESSAGE);
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(frame, "Please enter valid numbers for all fields!", "Input Error", JOptionPane.ERROR_MESSAGE);
+        JButton sendBtn = new RoundedButton("📩 Send", 20);
+        sendBtn.setFont(new Font("Segoe UI Emoji", Font.BOLD, 13));
+        sendBtn.addActionListener(e -> {
+            String userMessage = inputField.getText().trim();
+            if (!userMessage.isEmpty()) {
+                tipsArea.append("🧍 You: " + userMessage + "\n");
+                askChatbot(userMessage, tipsArea);
+                inputField.setText("");
             }
         });
     
-        formPanel.add(ageField);
-        formPanel.add(heightField);
-        formPanel.add(weightField);
-        formPanel.add(calcBtn);
+        inputField.addActionListener(e -> sendBtn.doClick()); // Press Enter to send
     
-        JButton backBtn = new RoundedButton("⬅ Back", 25);
-        backBtn.setBackground(new Color(220, 20, 60));
-        backBtn.setForeground(Color.WHITE);
-        backBtn.addActionListener(e -> cardLayout.show(contentPanel, "Home"));
+        JPanel inputPanel = new JPanel(new BorderLayout(10, 10));
+        inputPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        inputPanel.add(inputField, BorderLayout.CENTER);
+        inputPanel.add(sendBtn, BorderLayout.EAST);
     
-        workoutPanel.add(formPanel, BorderLayout.CENTER);
-        workoutPanel.add(backBtn, BorderLayout.SOUTH);
+        JButton backBtn = new RoundedButton("🔙 Back", 20);
+        backBtn.setFont(new Font("Segoe UI Emoji", Font.BOLD, 13));
+        backBtn.addActionListener(e -> layout.show(parent, "Home"));
     
-        return workoutPanel;
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+        bottomPanel.add(inputPanel, BorderLayout.CENTER);
+        bottomPanel.add(backBtn, BorderLayout.SOUTH);
+    
+        panel.add(title, BorderLayout.NORTH);
+        panel.add(scrollPane, BorderLayout.CENTER);
+        panel.add(bottomPanel, BorderLayout.SOUTH);
+    
+        return panel;
     }
+    List<Map<String, String>> chatHistory = new ArrayList<>();
+
+private void askChatbot(String userMessage, JTextArea chatArea) {
+    chatArea.append("🧠 You: " + userMessage + "\n");
+    chatArea.append("🤖 Asking trainer for a tip...\n");
+
+    // Add user message to chat history
+    Map<String, String> userMap = new HashMap<>();
+    userMap.put("role", "USER");
+    userMap.put("message", userMessage);
+    chatHistory.add(userMap);
+
+    SwingWorker<Void, Void> worker = new SwingWorker<>() {
+        @Override
+        protected Void doInBackground() {
+            try {
+                URL url = new URL("https://api.cohere.ai/v1/chat");
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Authorization", "Bearer rn1Yd43hXdJC39PKI6pdbxCXJrlUv3FMzwV60aQk");
+                conn.setRequestProperty("Content-Type", "application/json");
+                conn.setDoOutput(true);
+
+                JSONObject body = new JSONObject();
+                body.put("model", "command-r-plus");
+                body.put("message", userMessage);
+
+                // Build chat history array
+                JSONArray historyArray = new JSONArray();
+                for (Map<String, String> entry : chatHistory) {
+                    JSONObject messageObj = new JSONObject();
+                    messageObj.put("role", entry.get("role"));
+                    messageObj.put("message", entry.get("message"));
+                    historyArray.put(messageObj);
+                }
+                body.put("chat_history", historyArray);
+
+                try (OutputStream os = conn.getOutputStream()) {
+                    os.write(body.toString().getBytes());
+                }
+
+                BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                StringBuilder response = new StringBuilder();
+                String line;
+                while ((line = in.readLine()) != null) {
+                    response.append(line);
+                }
+                in.close();
+
+                JSONObject json = new JSONObject(response.toString());
+                String botReply = json.getString("text");
+
+                // Add bot reply to chat history
+                Map<String, String> botMap = new HashMap<>();
+                botMap.put("role", "CHATBOT");
+                botMap.put("message", botReply);
+                chatHistory.add(botMap);
+
+                SwingUtilities.invokeLater(() -> 
+                    chatArea.append("💪 Trainer: " + botReply.trim() + "\n\n")
+                );
+
+            } catch (Exception e) {
+                SwingUtilities.invokeLater(() -> 
+                    chatArea.append("⚠️ Error: " + e.getMessage() + "\n\n")
+                );
+            }
+            return null;
+        }
+    };
+    worker.execute();
+}
+    
+     
+    private void fetchNutritionInfo(String query, JTextArea resultArea) {
+    SwingWorker<Void, Void> worker = new SwingWorker<>() {
+        protected Void doInBackground() {
+            try {
+                URL url = new URL("https://trackapi.nutritionix.com/v2/natural/nutrients");
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("x-app-id", "ea15d219");
+                conn.setRequestProperty("x-app-key", "9ba208fd76c671029948a9600a53091f");
+                conn.setRequestProperty("Content-Type", "application/json");
+                conn.setDoOutput(true);
+
+                String body = "{\"query\": \"" + query + "\"}";
+                try (OutputStream os = conn.getOutputStream()) {
+                    os.write(body.getBytes());
+                }
+                catch (Exception e) {
+                    e.printStackTrace(); // <-- This shows the real error in console
+                    SwingUtilities.invokeLater(() -> resultArea.setText("⚠️ Error: " + e.getMessage()));
+                }
+
+                BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                StringBuilder content = new StringBuilder();
+                String line;
+                while ((line = in.readLine()) != null) content.append(line);
+                in.close();
+
+                JSONObject json = new JSONObject(content.toString());
+                JSONArray foods = json.getJSONArray("foods");
+                JSONObject food = foods.getJSONObject(0);
+
+                int calories = food.getInt("nf_calories");
+                double protein = food.getDouble("nf_protein");
+                double fat = food.getDouble("nf_total_fat");
+
+                String result = "Calories: " + calories + " \n"
+                              + "Protein: " + protein + "g\n"
+                              + "Fat: " + fat + "g\n\n"
+                              + "🏃 Run: " + (calories / 10) + " mins\n"
+                              + "💪 Workout: " + (calories / 7) + " mins";
+
+                SwingUtilities.invokeLater(() -> resultArea.setText(result));
+
+            } catch (Exception e) {
+                SwingUtilities.invokeLater(() -> resultArea.setText("⚠️ Error: " + e.getMessage()));
+            }
+            return null;
+        }
+    };
+    worker.execute();
+}
+private JPanel nutritionPanel(JPanel contentPanel, CardLayout cardLayout) {
+    JPanel panel = new JPanel(new BorderLayout());
+    panel.setBackground(new Color(255, 255, 240));
+
+    JLabel heading = new JLabel("🍎 Personalized Nutrition", JLabel.CENTER);
+    heading.setFont(new Font("Segoe UI", Font.BOLD, 20));
+    heading.setBorder(BorderFactory.createEmptyBorder(20, 10, 10, 10));
+
+    JTextField inputField = new JTextField();
+    inputField.setFont(new Font("JetBrains Mono", Font.PLAIN, 14));
+    inputField.setBorder(BorderFactory.createTitledBorder("Enter a food item"));
+
+    JTextArea resultArea = new JTextArea(8, 40);
+    resultArea.setFont(new Font("JetBrains Mono", Font.PLAIN, 13));
+    resultArea.setEditable(false);
+    resultArea.setLineWrap(true);
+    resultArea.setWrapStyleWord(true);
+    JScrollPane scrollPane = new JScrollPane(resultArea);
+
+    JButton fetchBtn = new RoundedButton("🍽️ Get Nutrition", 30);
+    fetchBtn.setFont(new Font("Segoe UI", Font.BOLD, 14));
+    fetchBtn.setBackground(new Color(144, 238, 144));
+    fetchBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    fetchBtn.addActionListener(e -> {
+        String query = inputField.getText().trim();
+        if (!query.isEmpty()) {
+            resultArea.setText("⏳ Fetching nutrition data...");
+            fetchNutritionInfo(query, resultArea);
+        } else {
+            resultArea.setText("⚠️ Please enter a food item.");
+        }
+    });
+
+    JButton backBtn = new RoundedButton("⬅️ Back", 30);
+    backBtn.setBackground(Color.LIGHT_GRAY);
+    backBtn.addActionListener(e -> cardLayout.show(contentPanel, "Home"));
+
+    JPanel centerPanel = new JPanel();
+    centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
+    centerPanel.setBackground(new Color(255, 255, 240));
+    centerPanel.add(inputField);
+    centerPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+    centerPanel.add(fetchBtn);
+    centerPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+    centerPanel.add(scrollPane);
+
+    JPanel southPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+    southPanel.setBackground(new Color(255, 255, 240));
+    southPanel.add(backBtn);
+
+    panel.add(heading, BorderLayout.NORTH);
+    panel.add(centerPanel, BorderLayout.CENTER);
+    panel.add(southPanel, BorderLayout.SOUTH);
+
+    return panel;
+}
+
+
 
     private void openStore(){
 
