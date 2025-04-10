@@ -126,6 +126,26 @@ Congratulations! 🎉 You're ready to explore FIT-Quest!
 
 ---
 
+## 📦 Requirements
+
+- **Java Runtime Environment (JRE)** 17 or later  
+  You can download it from [Oracle File Download](https://www.oracle.com/java/technologies/downloads/?er=221886)
+
+---
+
+## 🛠 How to Run
+
+### Option 1: Run the `.jar` file
+1. Make sure Java is installed:
+    ```bash
+    java -version
+    ```
+2. Run the app using:
+    ```bash
+    java -jar FIT-Quest.jar
+    ```
+
+---
 ## 🌟 APIs Used
 
 FIT-Quest uses the following third-party APIs to enhance functionality:
