@@ -231,6 +231,12 @@ header{
     animation: animate-gradient 2.5s linear infinite;
 }
 
+.breakdown-section p{
+    font-size: 22px;
+    text-align: center;
+    margin-top: 50px;
+}
+
 .cards{
     display: grid;
     grid-template-columns: auto auto;
@@ -279,6 +285,84 @@ header{
     font-size: 20px;
     font-weight: 700;
     text-align: center;
+}
+
+.card-box-flow{
+    position: relative;
+    background-color: #edff66;
+    color: black;
+    width: auto;
+    height: 230px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 5px solid transparent;
+    border-radius: 20px;
+    transition: 0.4s ease-in-out;
+}
+
+.card-box-flow:hover{
+    background: #101010;
+    color: #edff66;
+    border: 5px solid #edff66;
+    transform: scale(1.03);
+}
+
+.card-box-flow a{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 15px;
+    font-size: 45px;
+}
+
+.card-box-flow h4{
+    font-size: 40px;
+    max-width: 500px;
+    font-weight: 595;
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+    text-align: center;
+}
+
+.card-box-flow p{
+    font-size: 20px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.card-box-flow:nth-child(1){
+    grid-column: span 2;
+}
+
+.card-box-flow:nth-child(2){
+    grid-column: span 2;
+}
+
+.card-box-flow:nth-child(3){
+    grid-column: span 2;
+}
+
+.card-box-flow:nth-child(4){
+    grid-column: span 2;
+}
+
+.card-box-flow:nth-child(5){
+    grid-column: span 2;
+}
+
+.card-box-flow:nth-child(6){
+    grid-column: span 1;
+}
+
+.card-box-flow:nth-child(7){
+    grid-column: span 1;
+}
+
+.card-box-flow:nth-child(8){
+    grid-column: span 1;
+}
+
+.card-box-flow:nth-child(9){
+    grid-column: span 1;
 }
 
 .footer{
