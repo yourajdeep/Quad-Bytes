@@ -1,6 +1,6 @@
 # Quad-Bytes
 
-**`PROBLEM STATEMENT : Nutrition and Performance Planner`**
+**`PROBLEM STATEMENT : Nutrition and Performance Planner.`**
 
 *`DESCRIPTION : Design an app that combines personalized workout routines with nutrition planning to optimize athletic performance based on individual health data.`*
 # 🏆 FIT-Quest - Innovation in Nutrition
